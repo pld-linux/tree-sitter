@@ -1,11 +1,11 @@
 Summary:	An incremental parsing system for programming tools
 Name:		tree-sitter
-Version:	0.20.6
-Release:	2
+Version:	0.20.7
+Release:	1
 License:	MIT
 Group:		Libraries
 Source0:	https://github.com/tree-sitter/tree-sitter/archive/v%{version}/%{name}-%{version}.tar.gz
-# Source0-md5:	4ec4fe495d90a1daa66eb637cd008c72
+# Source0-md5:	f8fddc6c47ae32c13a6a774b1060a068
 URL:		https://tree-sitter.github.io
 BuildRoot:	%{tmpdir}/%{name}-%{version}-root-%(id -u -n)
 
