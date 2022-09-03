@@ -1,3 +1,9 @@
+#
+# Conditional build:
+%bcond_without	cli		# don't build cli tool for generating and testing parsers
+
+%define		crates_ver	0.20.7
+
 Summary:	An incremental parsing system for programming tools
 Name:		tree-sitter
 Version:	0.20.7
@@ -6,7 +12,16 @@ License:	MIT
 Group:		Libraries
 Source0:	https://github.com/tree-sitter/tree-sitter/archive/v%{version}/%{name}-%{version}.tar.gz
 # Source0-md5:	f8fddc6c47ae32c13a6a774b1060a068
+Source1:	%{name}-crates-%{crates_ver}.tar.xz
+# Source1-md5:	6a9d6656c53a88badbe754064a91f8b8
 URL:		https://tree-sitter.github.io
+BuildRequires:	rpmbuild(macros) >= 2.004
+%if %{with cli}
+BuildRequires:	cargo
+BuildRequires:	rust
+BuildRequires:	tar >= 1:1.22
+BuildRequires:	xz
+%endif
 BuildRoot:	%{tmpdir}/%{name}-%{version}-root-%(id -u -n)
 
 %description
@@ -37,8 +52,36 @@ Requires:	%{name}-devel = %{version}-%{release}
 %description static
 Static tree-sitter library.
 
+%package cli
+Summary:	tree-sitter command line utility
+Group:		Development/Libraries
+Requires:	%{name} = %{version}-%{release}
+Requires:	gcc
+Requires:	gcc-c++
+Requires:	nodejs
+
+%description cli
+The Tree-sitter CLI allows you to develop, test, and use Tree-sitter
+grammars from the command line.
+
 %prep
-%setup -q
+%setup -q %{?with_cli:-a1}
+
+%if %{with cli}
+%{__mv} -f tree-sitter-%{crates_ver}/cli/vendor/* cli/vendor
+
+export CARGO_HOME="$(pwd)/cli/.cargo"
+
+mkdir -p "$CARGO_HOME"
+cat >$CARGO_HOME/config <<EOF
+[source.crates-io]
+registry = 'https://github.com/rust-lang/crates.io-index'
+replace-with = 'vendored-sources'
+
+[source.vendored-sources]
+directory = '$PWD/cli/vendor'
+EOF
+%endif
 
 %build
 %{__make} \
@@ -50,6 +93,13 @@ Static tree-sitter library.
 	CFLAGS="%{rpmcppflags} %{rpmcflags}" \
 	LDFLAGS="%{rpmldflags}"
 
+%if %{with cli}
+export CARGO_HOME="$(pwd)/cli/.cargo"
+cd cli
+%cargo_build --frozen
+cd ..
+%endif
+
 %install
 rm -rf $RPM_BUILD_ROOT
 
@@ -59,6 +109,14 @@ rm -rf $RPM_BUILD_ROOT
 	INCLUDEDIR="%{_includedir}" \
 	LIBDIR="%{_libdir}" \
 	PCLIBDIR="%{_pkgconfigdir}"
+
+%if %{with cli}
+export CARGO_HOME="$(pwd)/cli/.cargo"
+cd cli
+%cargo_install --frozen --root $RPM_BUILD_ROOT%{_prefix} --path $PWD
+cd ..
+%{__rm} $RPM_BUILD_ROOT%{_prefix}/.crates*
+%endif
 
 %clean
 rm -rf $RPM_BUILD_ROOT
@@ -81,3 +139,10 @@ rm -rf $RPM_BUILD_ROOT
 %files static
 %defattr(644,root,root,755)
 %{_libdir}/libtree-sitter.a
+
+%if %{with cli}
+%files cli
+%defattr(644,root,root,755)
+%doc cli/README.md
+%attr(755,root,root) %{_bindir}/tree-sitter
+%endif
