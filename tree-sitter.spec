@@ -2,18 +2,18 @@
 # Conditional build:
 %bcond_without	cli		# don't build cli tool for generating and testing parsers
 
-%define		crates_ver	0.20.8
+%define		crates_ver	0.22.6
 
 Summary:	An incremental parsing system for programming tools
 Name:		tree-sitter
-Version:	0.20.8
+Version:	0.22.6
 Release:	1
 License:	MIT
 Group:		Libraries
 Source0:	https://github.com/tree-sitter/tree-sitter/archive/v%{version}/%{name}-%{version}.tar.gz
-# Source0-md5:	ceaa8a732ed3ccbacf5018dbcfe8ad77
+# Source0-md5:	1c8767fcc22be1b66583677d6ab07cb1
 Source1:	%{name}-crates-%{crates_ver}.tar.xz
-# Source1-md5:	e21b2e70ba6531ad272a3db5a560e802
+# Source1-md5:	dd469d08bda65587aa2ce61d2a814a52
 URL:		https://tree-sitter.github.io
 BuildRequires:	rpmbuild(macros) >= 2.004
 %if %{with cli}
@@ -67,10 +67,10 @@ grammars from the command line.
 %prep
 %setup -q %{?with_cli:-a1}
 
-%if %{with cli}
-%{__mv} -f tree-sitter-%{crates_ver}/cli/vendor/* cli/vendor
+%{?with_cli:%{__mv} tree-sitter-%{crates_ver}/vendor .}
 
-export CARGO_HOME="$(pwd)/cli/.cargo"
+%if %{with cli}
+export CARGO_HOME="$(pwd)/.cargo"
 
 mkdir -p "$CARGO_HOME"
 cat >$CARGO_HOME/config <<EOF
@@ -79,7 +79,7 @@ registry = 'https://github.com/rust-lang/crates.io-index'
 replace-with = 'vendored-sources'
 
 [source.vendored-sources]
-directory = '$PWD/cli/vendor'
+directory = '$PWD/vendor'
 EOF
 %endif
 
@@ -94,10 +94,8 @@ EOF
 	LDFLAGS="%{rpmldflags}"
 
 %if %{with cli}
-export CARGO_HOME="$(pwd)/cli/.cargo"
-cd cli
-%cargo_build --frozen
-cd ..
+export CARGO_HOME="$(pwd)/.cargo"
+%cargo_build --frozen --package tree-sitter-cli
 %endif
 
 %install
@@ -111,10 +109,8 @@ rm -rf $RPM_BUILD_ROOT
 	PCLIBDIR="%{_pkgconfigdir}"
 
 %if %{with cli}
-export CARGO_HOME="$(pwd)/cli/.cargo"
-cd cli
-%cargo_install --frozen --root $RPM_BUILD_ROOT%{_prefix} --path $PWD
-cd ..
+export CARGO_HOME="$(pwd)/.cargo"
+%cargo_install --frozen --root $RPM_BUILD_ROOT%{_prefix} --path $PWD/cli
 %{__rm} $RPM_BUILD_ROOT%{_prefix}/.crates*
 %endif
 
