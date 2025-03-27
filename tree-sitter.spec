@@ -2,18 +2,18 @@
 # Conditional build:
 %bcond_without	cli		# don't build cli tool for generating and testing parsers
 
-%define		crates_ver	0.22.6
+%define		crates_ver	0.25.3
 
 Summary:	An incremental parsing system for programming tools
 Name:		tree-sitter
-Version:	0.22.6
+Version:	0.25.3
 Release:	1
 License:	MIT
 Group:		Libraries
 Source0:	https://github.com/tree-sitter/tree-sitter/archive/v%{version}/%{name}-%{version}.tar.gz
-# Source0-md5:	1c8767fcc22be1b66583677d6ab07cb1
+# Source0-md5:	88c4de229d7d171d6a6556b0598c2929
 Source1:	%{name}-crates-%{crates_ver}.tar.xz
-# Source1-md5:	dd469d08bda65587aa2ce61d2a814a52
+# Source1-md5:	44a0176698c01f61499744483bf4a6dd
 URL:		https://tree-sitter.github.io
 BuildRequires:	rpmbuild(macros) >= 2.004
 %if %{with cli}
@@ -111,7 +111,6 @@ rm -rf $RPM_BUILD_ROOT
 %if %{with cli}
 export CARGO_HOME="$(pwd)/.cargo"
 %cargo_install --frozen --root $RPM_BUILD_ROOT%{_prefix} --path $PWD/cli
-%{__rm} $RPM_BUILD_ROOT%{_prefix}/.crates*
 %endif
 
 %clean
@@ -123,12 +122,12 @@ rm -rf $RPM_BUILD_ROOT
 %files
 %defattr(644,root,root,755)
 %doc CONTRIBUTING.md README.md
-%attr(755,root,root) %{_libdir}/libtree-sitter.so.*.*
-%attr(755,root,root) %ghost %{_libdir}/libtree-sitter.so.0
+%attr(755,root,root) %{_libdir}/libtree-sitter.so.0.25
 
 %files devel
 %defattr(644,root,root,755)
 %attr(755,root,root) %{_libdir}/libtree-sitter.so
+%attr(755,root,root) %{_libdir}/libtree-sitter.so.0
 %{_includedir}/tree_sitter
 %{_pkgconfigdir}/tree-sitter.pc
 
