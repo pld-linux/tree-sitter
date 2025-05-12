@@ -2,18 +2,18 @@
 # Conditional build:
 %bcond_without	cli		# don't build cli tool for generating and testing parsers
 
-%define		crates_ver	0.25.3
+%define		crates_ver	0.25.4
 
 Summary:	An incremental parsing system for programming tools
 Name:		tree-sitter
-Version:	0.25.3
+Version:	0.25.4
 Release:	1
 License:	MIT
 Group:		Libraries
 Source0:	https://github.com/tree-sitter/tree-sitter/archive/v%{version}/%{name}-%{version}.tar.gz
-# Source0-md5:	88c4de229d7d171d6a6556b0598c2929
+# Source0-md5:	52a814099553e9fc621ba2ee2267dd5e
 Source1:	%{name}-crates-%{crates_ver}.tar.xz
-# Source1-md5:	44a0176698c01f61499744483bf4a6dd
+# Source1-md5:	f79a9abc6c276e80742a0fac96fce1c0
 URL:		https://tree-sitter.github.io
 BuildRequires:	rpmbuild(macros) >= 2.004
 %if %{with cli}
