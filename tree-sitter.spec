@@ -15,7 +15,7 @@ Source0:	https://github.com/tree-sitter/tree-sitter/archive/v%{version}/%{name}-
 Source1:	%{name}-crates-%{crates_ver}.tar.xz
 # Source1-md5:	f79a9abc6c276e80742a0fac96fce1c0
 URL:		https://tree-sitter.github.io
-BuildRequires:	rpmbuild(macros) >= 2.004
+BuildRequires:	rpmbuild(macros) >= 2.050
 %if %{with cli}
 BuildRequires:	cargo
 BuildRequires:	rust
@@ -56,6 +56,7 @@ Static tree-sitter library.
 Summary:	tree-sitter command line utility
 Group:		Development/Libraries
 Requires:	%{name} = %{version}-%{release}
+%{?rust_req}
 Requires:	gcc
 Requires:	gcc-c++
 Requires:	nodejs
