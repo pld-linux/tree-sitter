@@ -1,24 +1,27 @@
 #
 # Conditional build:
-%bcond_without	cli		# don't build cli tool for generating and testing parsers
+%bcond_without	cli	# CLI tool for generating and testing parsers (rust-based)
 
-%define		crates_ver	0.25.4
+%define		crates_ver	%{version}
 
 Summary:	An incremental parsing system for programming tools
+Summary(pl.UTF-8):	System przyrostowej analizy składni dla narzędzi programistycznych
 Name:		tree-sitter
-Version:	0.25.4
+Version:	0.26.3
 Release:	1
 License:	MIT
 Group:		Libraries
+#Source0Download: https://github.com/tree-sitter/tree-sitter/releases
 Source0:	https://github.com/tree-sitter/tree-sitter/archive/v%{version}/%{name}-%{version}.tar.gz
-# Source0-md5:	52a814099553e9fc621ba2ee2267dd5e
+# Source0-md5:	8d32828a916b65e6a96c8efe68dbfd8d
+# cargo vendor-filterer --platform='*-unknown-linux-*' --tier=2 --versioned-dirs && tar cJf tree-sitter-crates-VERSION.tar.xz vendor Cargo.lock
 Source1:	%{name}-crates-%{crates_ver}.tar.xz
-# Source1-md5:	f79a9abc6c276e80742a0fac96fce1c0
-URL:		https://tree-sitter.github.io
+# Source1-md5:	1c4c12869119a4346ec58ae6ff29da6b
+URL:		https://tree-sitter.github.io/
 BuildRequires:	rpmbuild(macros) >= 2.050
 %if %{with cli}
 BuildRequires:	cargo
-BuildRequires:	rust
+BuildRequires:	rust >= 1.84
 BuildRequires:	tar >= 1:1.22
 BuildRequires:	xz
 %endif
@@ -36,26 +39,48 @@ Tree-sitter aims to be:
 - Dependency-free so that the runtime library (which is written in
   pure C) can be embedded in any application
 
+%description -l pl.UTF-8
+Tree-sitter to narzędzie do generowania parserów oraz biblioteka do
+przyrostowej analizy składni. Potrafi budować drzewa składniowe dla
+plików źródłowych oraz wydajnie uaktualniać drzewo składniowe w miarę
+edycji pliku źródłowego. Projekt ma być:
+- wystarczająco ogólny, aby analizować dowolny język programowania
+- wystarczająco szybki, aby analizować przy każdym naciśnięciu
+  klawisza w edytorze
+- wystarczająco funkcjonalny, aby dać przydatne wyniki nawet w
+  przypadku błędów składni
+- wolny od zależności, dzięki czemu biblioteka uruchomieniowa
+  (napisana w czystym C) może być osadzona w dowolnej aplikacji
+
 %package devel
 Summary:	Header files for tree-sitter library
+Summary(pl.UTF-8):	Pliki nagłówkowe biblioteki tree-sitter
 Group:		Development/Libraries
-Requires:	%{name} = %{version}-%{release}
+Requires:	%{name}%{?_isa} = %{version}-%{release}
 
 %description devel
 Header files for tree-sitter library.
 
+%description devel -l pl.UTF-8
+Pliki nagłówkowe biblioteki tree-sitter.
+
 %package static
 Summary:	Static tree-sitter library
+Summary(pl.UTF-8):	Statyczna biblioteka tree-sitter
 Group:		Development/Libraries
-Requires:	%{name}-devel = %{version}-%{release}
+Requires:	%{name}-devel%{?_isa} = %{version}-%{release}
 
 %description static
 Static tree-sitter library.
 
+%description static -l pl.UTF-8
+Statyczna biblioteka tree-sitter.
+
 %package cli
 Summary:	tree-sitter command line utility
-Group:		Development/Libraries
-Requires:	%{name} = %{version}-%{release}
+Summary(pl.UTF-8):	Narzędzie linii poleceń tree-sitter
+Group:		Development/Tools
+Requires:	%{name}%{?_isa} = %{version}-%{release}
 %{?rust_req}
 Requires:	gcc
 Requires:	gcc-c++
@@ -65,16 +90,19 @@ Requires:	nodejs
 The Tree-sitter CLI allows you to develop, test, and use Tree-sitter
 grammars from the command line.
 
+%description cli -l pl.UTF-8
+Tree-sitter CLI pozwala na rozwijanie, testowanie i używanie gramatyk
+Tree-sitter z linii poleceń.
+
 %prep
 %setup -q %{?with_cli:-a1}
-
-%{?with_cli:%{__mv} tree-sitter-%{crates_ver}/vendor .}
 
 %if %{with cli}
 export CARGO_HOME="$(pwd)/.cargo"
 
 mkdir -p "$CARGO_HOME"
-cat >$CARGO_HOME/config <<EOF
+cat >>$CARGO_HOME/config.toml <<EOF
+
 [source.crates-io]
 registry = 'https://github.com/rust-lang/crates.io-index'
 replace-with = 'vendored-sources'
@@ -111,7 +139,7 @@ rm -rf $RPM_BUILD_ROOT
 
 %if %{with cli}
 export CARGO_HOME="$(pwd)/.cargo"
-%cargo_install --frozen --root $RPM_BUILD_ROOT%{_prefix} --path $PWD/cli
+%cargo_install --frozen --root $RPM_BUILD_ROOT%{_prefix} --path $PWD/crates/cli
 %endif
 
 %clean
@@ -122,13 +150,14 @@ rm -rf $RPM_BUILD_ROOT
 
 %files
 %defattr(644,root,root,755)
-%doc CONTRIBUTING.md README.md
-%attr(755,root,root) %{_libdir}/libtree-sitter.so.0.25
+%doc LICENSE README.md
+%{_libdir}/libtree-sitter.so.0.26
 
 %files devel
 %defattr(644,root,root,755)
-%attr(755,root,root) %{_libdir}/libtree-sitter.so
-%attr(755,root,root) %{_libdir}/libtree-sitter.so.0
+# intermediate symlink (not soname)
+%{_libdir}/libtree-sitter.so.0
+%{_libdir}/libtree-sitter.so
 %{_includedir}/tree_sitter
 %{_pkgconfigdir}/tree-sitter.pc
 
@@ -139,6 +168,6 @@ rm -rf $RPM_BUILD_ROOT
 %if %{with cli}
 %files cli
 %defattr(644,root,root,755)
-%doc cli/README.md
+%doc crates/cli/{LICENSE,README.md}
 %attr(755,root,root) %{_bindir}/tree-sitter
 %endif
