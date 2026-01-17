@@ -4,6 +4,9 @@
 
 %define		crates_ver	%{version}
 
+%define		min_api_ver	13
+%define		max_api_ver	15
+
 Summary:	An incremental parsing system for programming tools
 Summary(pl.UTF-8):	System przyrostowej analizy składni dla narzędzi programistycznych
 Name:		tree-sitter
@@ -25,6 +28,9 @@ BuildRequires:	rust >= 1.84
 BuildRequires:	tar >= 1:1.22
 BuildRequires:	xz
 %endif
+%{lua:for abi=tonumber(macros.min_api_ver),tonumber(macros.max_api_ver) do
+print("Provides:\ttree-sitter(abi) = "..abi.."\n")
+end}
 BuildRoot:	%{tmpdir}/%{name}-%{version}-root-%(id -u -n)
 
 %description
@@ -113,6 +119,9 @@ EOF
 %endif
 
 %build
+grep -q 'TREE_SITTER_MIN_COMPATIBLE_LANGUAGE_VERSION[[:space:]]*%{min_api_ver}$' lib/include/tree_sitter/api.h
+grep -q 'TREE_SITTER_LANGUAGE_VERSION[[:space:]]*%{max_api_ver}$' lib/include/tree_sitter/api.h
+
 %{__make} \
 	PREFIX="%{_prefix}" \
 	INCLUDEDIR="%{_includedir}" \
