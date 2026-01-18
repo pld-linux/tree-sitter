@@ -29,7 +29,7 @@ BuildRequires:	tar >= 1:1.22
 BuildRequires:	xz
 %endif
 %{lua:for abi=tonumber(macros.min_api_ver),tonumber(macros.max_api_ver) do
-print("Provides:\ttree-sitter(abi) = "..abi.."\n")
+print("Provides:\ttree-sitter(abi)"..rpm.expand("%{?_isa}").." = "..abi.."\n")
 end}
 BuildRoot:	%{tmpdir}/%{name}-%{version}-root-%(id -u -n)
 
