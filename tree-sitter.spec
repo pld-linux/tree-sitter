@@ -29,7 +29,7 @@ BuildRequires:	tar >= 1:1.22
 BuildRequires:	xz
 # rustc host libclang for bindgen
 %ifarch x32
-BuildRequires:	clang-libs(x86_64)
+BuildRequires:	clang-libs(x86-64)
 %else
 BuildRequires:	clang-libs
 %endif
