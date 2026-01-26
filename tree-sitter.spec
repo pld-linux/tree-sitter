@@ -27,6 +27,12 @@ BuildRequires:	cargo
 BuildRequires:	rust >= 1.84
 BuildRequires:	tar >= 1:1.22
 BuildRequires:	xz
+# rustc host libclang for bindgen
+%ifarch x32
+BuildRequires:	clang-libs(x86_64)
+%else
+BuildRequires:	clang-libs
+%endif
 %endif
 %{lua:for abi=tonumber(macros.min_api_ver),tonumber(macros.max_api_ver) do
 print("Provides:\tc-tree-sitter(abi)"..rpm.expand("%{?_isa}").." = "..abi.."\n")
