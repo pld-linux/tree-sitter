@@ -11,7 +11,7 @@ Summary:	An incremental parsing system for programming tools
 Summary(pl.UTF-8):	System przyrostowej analizy składni dla narzędzi programistycznych
 Name:		tree-sitter
 Version:	0.26.3
-Release:	1
+Release:	2
 License:	MIT
 Group:		Libraries
 #Source0Download: https://github.com/tree-sitter/tree-sitter/releases
@@ -96,7 +96,11 @@ Requires:	%{name}%{?_isa} = %{version}-%{release}
 %{?rust_req}
 Requires:	gcc
 Requires:	gcc-c++
+%ifarch x32
+Requires:	nodejs(x86-64)
+%else
 Requires:	nodejs
+%endif
 
 %description cli
 The Tree-sitter CLI allows you to develop, test, and use Tree-sitter
