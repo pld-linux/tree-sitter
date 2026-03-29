@@ -25,6 +25,9 @@ BuildRequires:	rpmbuild(macros) >= 2.050
 %if %{with cli}
 BuildRequires:	cargo
 BuildRequires:	clang
+%ifnarch %arch_with_atomics64
+BuildRequires:	libatomic-devel
+%endif
 BuildRequires:	rust >= 1.84
 BuildRequires:	tar >= 1:1.22
 BuildRequires:	xz
@@ -39,6 +42,10 @@ BuildRequires:	clang-libs
 print("Provides:\tc-tree-sitter(abi)"..rpm.expand("%{?_isa}").." = "..abi.."\n")
 end}
 BuildRoot:	%{tmpdir}/%{name}-%{version}-root-%(id -u -n)
+
+%ifnarch %arch_with_atomics64
+%define		specrustflags	-l dylib=atomic
+%endif
 
 %description
 Tree-sitter is a parser generator tool and an incremental parsing
