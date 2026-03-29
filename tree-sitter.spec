@@ -24,6 +24,7 @@ URL:		https://tree-sitter.github.io/
 BuildRequires:	rpmbuild(macros) >= 2.050
 %if %{with cli}
 BuildRequires:	cargo
+BuildRequires:	clang
 BuildRequires:	rust >= 1.84
 BuildRequires:	tar >= 1:1.22
 BuildRequires:	xz
