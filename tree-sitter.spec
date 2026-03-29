@@ -10,16 +10,16 @@
 Summary:	An incremental parsing system for programming tools
 Summary(pl.UTF-8):	System przyrostowej analizy składni dla narzędzi programistycznych
 Name:		tree-sitter
-Version:	0.26.3
-Release:	2
+Version:	0.26.7
+Release:	1
 License:	MIT
 Group:		Libraries
 #Source0Download: https://github.com/tree-sitter/tree-sitter/releases
 Source0:	https://github.com/tree-sitter/tree-sitter/archive/v%{version}/%{name}-%{version}.tar.gz
-# Source0-md5:	8d32828a916b65e6a96c8efe68dbfd8d
+# Source0-md5:	857b225a5119c7f3112254290aabedc9
 # cargo vendor-filterer --platform='*-unknown-linux-*' --tier=2 --versioned-dirs && tar cJf tree-sitter-crates-VERSION.tar.xz vendor Cargo.lock
 Source1:	%{name}-crates-%{crates_ver}.tar.xz
-# Source1-md5:	1c4c12869119a4346ec58ae6ff29da6b
+# Source1-md5:	7633219dd17e53b9a987540a455fb762
 URL:		https://tree-sitter.github.io/
 BuildRequires:	rpmbuild(macros) >= 2.050
 %if %{with cli}
